@@ -1,0 +1,392 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Countdown Timer — PSAS II 30 Desember 2026</title>
+    <!-- Memuat Tailwind CSS untuk styling modern dan responsif -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Memuat Google Fonts: Inter & JetBrains Mono (untuk angka timer agar tidak bergeser saat berubah) -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@600;700;800&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                        mono: ['JetBrains Mono', 'monospace'],
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+<body class="min-h-screen bg-gradient-to-br from-slate-950 via-indigo-950 to-slate-900 text-slate-100 font-sans flex flex-col justify-between selection:bg-indigo-500 selection:text-white">
+
+    <!-- Dekorasi Latar Belakang Halus -->
+    <div class="fixed inset-0 overflow-hidden pointer-events-none">
+        <div class="absolute -top-32 -left-32 w-96 h-96 bg-indigo-600/20 rounded-full blur-3xl"></div>
+        <div class="absolute -bottom-32 -right-32 w-96 h-96 bg-cyan-500/15 rounded-full blur-3xl"></div>
+    </div>
+
+    <!-- Kontainer Utama -->
+    <main class="relative z-10 w-full max-w-4xl mx-auto px-4 py-8 sm:py-12 my-auto">
+        
+        <!-- Kartu Utama Aplikasi -->
+        <div class="bg-slate-900/75 backdrop-blur-xl border border-slate-800/80 rounded-3xl shadow-2xl p-6 sm:p-10">
+            
+            <!-- Header & Lencana Status -->
+            <header class="text-center mb-8 sm:mb-10">
+                <div class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-indigo-500/15 border border-indigo-400/30 text-indigo-300 text-xs sm:text-sm font-semibold tracking-wide mb-4">
+                    <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+                    <span>HITUNG MUNDUR PUBLIK • REAL-TIME</span>
+                </div>
+                
+                <h1 class="text-2xl sm:text-4xl font-extrabold tracking-tight text-white mb-2">
+                    Penilaian Sumatif Akhir Semester II
+                </h1>
+                
+                <!-- Subjudul Target Waktu (Akan diperbarui dinamis jika user mengganti jadwal) -->
+                <p id="targetSubtitle" class="text-slate-300 text-sm sm:text-lg font-medium">
+                    Menuju PSAS II — <span class="text-indigo-300 font-semibold">30 Desember 2026, 00:00 WIB</span>
+                </p>
+            </header>
+
+            <!-- Banner Notifikasi Waktu Habis (Tersembunyi secara default, muncul saat 00:00:00:00) -->
+            <div id="timesUpBanner" class="hidden mb-8 p-5 sm:p-6 rounded-2xl bg-gradient-to-r from-emerald-600/30 via-teal-500/30 to-emerald-600/30 border-2 border-emerald-400 text-center shadow-lg shadow-emerald-950/50 animate-bounce">
+                <div class="flex flex-col items-center justify-center gap-2">
+                    <span class="text-3xl sm:text-4xl" aria-hidden="true">🎓📢</span>
+                    <h2 id="timesUpMessage" class="text-lg sm:text-2xl font-extrabold text-emerald-200 tracking-wide">
+                        WAKTU UJIAN PSAS II TELAH DIMULAI!
+                    </h2>
+                    <p class="text-xs sm:text-sm text-emerald-100/90">
+                        Selamat mengerjakan ujian dengan jujur, teliti, dan penuh semangat!
+                    </p>
+                </div>
+            </div>
+
+            <!-- Grid Tampilan Hitung Mundur Publik (Hari, Jam, Menit, Detik) -->
+            <section aria-label="Tampilan Waktu Hitung Mundur" class="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-5 mb-8 sm:mb-10">
+                
+                <!-- Kotak Hari -->
+                <div class="bg-slate-800/80 border border-slate-700/80 rounded-2xl p-4 sm:p-6 text-center shadow-inner transition-transform hover:-translate-y-0.5">
+                    <div id="days" class="font-mono text-4xl sm:text-6xl font-extrabold text-white tracking-tight">
+                        00
+                    </div>
+                    <div class="mt-2 text-xs sm:text-sm font-semibold uppercase tracking-widest text-indigo-300">
+                        Hari
+                    </div>
+                </div>
+
+                <!-- Kotak Jam -->
+                <div class="bg-slate-800/80 border border-slate-700/80 rounded-2xl p-4 sm:p-6 text-center shadow-inner transition-transform hover:-translate-y-0.5">
+                    <div id="hours" class="font-mono text-4xl sm:text-6xl font-extrabold text-white tracking-tight">
+                        00
+                    </div>
+                    <div class="mt-2 text-xs sm:text-sm font-semibold uppercase tracking-widest text-indigo-300">
+                        Jam
+                    </div>
+                </div>
+
+                <!-- Kotak Menit -->
+                <div class="bg-slate-800/80 border border-slate-700/80 rounded-2xl p-4 sm:p-6 text-center shadow-inner transition-transform hover:-translate-y-0.5">
+                    <div id="minutes" class="font-mono text-4xl sm:text-6xl font-extrabold text-white tracking-tight">
+                        00
+                    </div>
+                    <div class="mt-2 text-xs sm:text-sm font-semibold uppercase tracking-widest text-indigo-300">
+                        Menit
+                    </div>
+                </div>
+
+                <!-- Kotak Detik -->
+                <div class="bg-indigo-950/60 border border-indigo-500/40 rounded-2xl p-4 sm:p-6 text-center shadow-inner transition-transform hover:-translate-y-0.5">
+                    <div id="seconds" class="font-mono text-4xl sm:text-6xl font-extrabold text-cyan-300 tracking-tight">
+                        00
+                    </div>
+                    <div class="mt-2 text-xs sm:text-sm font-semibold uppercase tracking-widest text-cyan-200">
+                        Detik
+                    </div>
+                </div>
+
+            </section>
+
+            <!-- Pembatas Visual -->
+            <div class="border-t border-slate-800 my-6 sm:my-8"></div>
+
+            <!-- Bagian Fitur Input Waktu (Custom Timer) -->
+            <section aria-label="Pengaturan Custom Timer" class="bg-slate-950/50 border border-slate-800/90 rounded-2xl p-5 sm:p-6">
+                <div class="mb-4">
+                    <h2 class="text-base sm:text-lg font-bold text-white flex items-center gap-2">
+                        <span>⏱️</span> Atur Waktu Hitung Mundur Kustom
+                    </h2>
+                    <p class="text-xs sm:text-sm text-slate-400 mt-1">
+                        Pilih tanggal dan jam baru di bawah ini untuk menguji atau mengubah target hitung mundur secara langsung.
+                    </p>
+                </div>
+
+                <!-- Pesan Validasi Input (Pengganti alert() agar lebih ramah pengguna) -->
+                <div id="feedbackToast" class="hidden mb-4 px-4 py-3 rounded-xl text-xs sm:text-sm font-medium border"></div>
+
+                <!-- Form Input Waktu -->
+                <form id="customTimerForm" class="flex flex-col sm:flex-row items-stretch sm:items-end gap-3 sm:gap-4">
+                    <div class="flex-1">
+                        <label for="customDateTime" class="block text-xs font-semibold uppercase tracking-wider text-slate-300 mb-2">
+                            Tanggal & Jam Target Baru
+                        </label>
+                        <input 
+                            type="datetime-local" 
+                            id="customDateTime" 
+                            name="customDateTime"
+                            required
+                            class="w-full px-4 py-3 rounded-xl bg-slate-900 border border-slate-700 text-white text-sm sm:text-base focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition [color-scheme:dark]"
+                        >
+                    </div>
+
+                    <div class="flex flex-col sm:flex-row gap-2.5">
+                        <!-- Tombol Utama sesuai spesifikasi tugas -->
+                        <button 
+                            type="submit" 
+                            class="px-5 py-3 rounded-xl bg-indigo-600 hover:bg-indigo-500 active:bg-indigo-700 text-white font-semibold text-sm sm:text-base shadow-lg shadow-indigo-950/60 transition cursor-pointer whitespace-nowrap"
+                        >
+                            Mulai Hitung Mundur
+                        </button>
+
+                        <!-- Tombol Tambahan untuk mengembalikan ke jadwal default PSAS II -->
+                        <button 
+                            type="button" 
+                            id="resetDefaultBtn"
+                            class="px-4 py-3 rounded-xl bg-slate-800 hover:bg-slate-700 active:bg-slate-900 text-slate-200 border border-slate-700 font-medium text-sm transition cursor-pointer whitespace-nowrap"
+                            title="Kembalikan target ke 30 Desember 2026"
+                        >
+                            Reset ke PSAS II
+                        </button>
+                    </div>
+                </form>
+            </section>
+
+        </div>
+    </main>
+
+    <!-- Footer Singkat -->
+    <footer class="relative z-10 text-center py-5 px-4 text-xs text-slate-400">
+        Tugas 2 Pemrograman Web • Implementasi JavaScript <code class="text-indigo-300">Date</code>, <code class="text-indigo-300">setInterval()</code> & Manipulasi <code class="text-indigo-300">DOM</code>
+    </footer>
+
+    <!-- ===================================================================== -->
+    <!-- LOGIKA JAVASCRIPT: MANIPULASI WAKTU (DATE), INTERVAL, DAN DOM          -->
+    <!-- ===================================================================== -->
+    <script>
+        /**
+         * 1. INISIALISASI KONSTANTA & VARIABEL WAKTU (DATE OBJECT)
+         * Format ISO '2026-12-30T00:00:00' menggunakan zona waktu lokal perangkat pengguna.
+         */
+        const DEFAULT_TARGET_STRING = '2026-12-30T00:00:00';
+        const DEFAULT_LABEL = 'Menuju PSAS II — 30 Desember 2026, 00:00';
+
+        // Menyimpan timestamp (dalam milidetik) dari waktu target yang sedang aktif
+        let targetTimestamp = new Date(DEFAULT_TARGET_STRING).getTime();
+        // Penanda apakah sedang menggunakan jadwal default PSAS II atau jadwal kustom
+        let isDefaultTarget = true;
+        // Menyimpan ID dari setInterval() agar bisa dihentikan dengan clearInterval()
+        let countdownIntervalId = null;
+
+        /**
+         * 2. SELEKSI ELEMEN DOM (DOCUMENT OBJECT MODEL)
+         * Mengambil referensi elemen HTML agar bisa diubah isinya secara real-time.
+         */
+        const daysEl = document.getElementById('days');
+        const hoursEl = document.getElementById('hours');
+        const minutesEl = document.getElementById('minutes');
+        const secondsEl = document.getElementById('seconds');
+
+        const targetSubtitleEl = document.getElementById('targetSubtitle');
+        const timesUpBannerEl = document.getElementById('timesUpBanner');
+        const timesUpMessageEl = document.getElementById('timesUpMessage');
+
+        const customTimerForm = document.getElementById('customTimerForm');
+        const customDateTimeInput = document.getElementById('customDateTime');
+        const resetDefaultBtn = document.getElementById('resetDefaultBtn');
+        const feedbackToastEl = document.getElementById('feedbackToast');
+
+        /**
+         * Fungsi Bantuan: formatTwoDigits(number)
+         * Menambahkan angka '0' di depan jika angka kurang dari 10 (contoh: 7 -> "07").
+         */
+        function formatTwoDigits(number) {
+            return String(Math.max(0, number)).padStart(2, '0');
+        }
+
+        /**
+         * Fungsi Bantuan: showFeedback(message, type)
+         * Menampilkan pesan status atau error secara halus di dalam halaman (tanpa alert()).
+         */
+        function showFeedback(message, type = 'info') {
+            feedbackToastEl.textContent = message;
+            feedbackToastEl.classList.remove(
+                'hidden',
+                'bg-rose-500/15', 'border-rose-500/40', 'text-rose-200',
+                'bg-indigo-500/15', 'border-indigo-500/40', 'text-indigo-200'
+            );
+
+            if (type === 'error') {
+                feedbackToastEl.classList.add('bg-rose-500/15', 'border-rose-500/40', 'text-rose-200');
+            } else {
+                feedbackToastEl.classList.add('bg-indigo-500/15', 'border-indigo-500/40', 'text-indigo-200');
+            }
+
+            // Sembunyikan otomatis setelah 4 detik
+            clearTimeout(feedbackToastEl.hideTimeout);
+            feedbackToastEl.hideTimeout = setTimeout(() => {
+                feedbackToastEl.classList.add('hidden');
+            }, 4000);
+        }
+
+        /**
+         * Fungsi Bantuan: formatIndonesianDateTime(dateObj)
+         * Mengubah objek Date menjadi format tanggal & jam Bahasa Indonesia yang rapi.
+         */
+        function formatIndonesianDateTime(dateObj) {
+            const options = {
+                day: 'numeric',
+                month: 'long',
+                year: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit'
+            };
+            return dateObj.toLocaleDateString('id-ID', options).replace('.', ':');
+        }
+
+        /**
+         * 3. FUNGSI UTAMA HITUNG MUNDUR: updateCountdown()
+         * Menghitung selisih waktu sekarang dengan waktu target, lalu memperbarui DOM.
+         */
+        function updateCountdown() {
+            // Mengambil waktu saat ini dalam milidetik
+            const now = new Date().getTime();
+            // Menghitung selisih waktu (dalam milidetik)
+            const distance = targetTimestamp - now;
+
+            // KONDISI WAKTU HABIS (Selisih <= 0)
+            if (distance <= 0) {
+                // Hentikan perulangan interval agar tidak menghitung angka negatif
+                if (countdownIntervalId) {
+                    clearInterval(countdownIntervalId);
+                    countdownIntervalId = null;
+                }
+
+                // Pastikan layar menampilkan 00 Hari 00 Jam 00 Menit 00 Detik
+                daysEl.textContent = '00';
+                hoursEl.textContent = '00';
+                minutesEl.textContent = '00';
+                secondsEl.textContent = '00';
+
+                // Tampilkan banner notifikasi waktu habis
+                timesUpMessageEl.textContent = 'WAKTU UJIAN PSAS II TELAH DIMULAI!';
+                timesUpBannerEl.classList.remove('hidden');
+                return;
+            }
+
+            // Sembunyikan banner waktu habis jika waktu masih berjalan
+            timesUpBannerEl.classList.add('hidden');
+
+            // KONVERSI MILIDETIK KE HARI, JAM, MENIT, DAN DETIK
+            const msPerSecond = 1000;
+            const msPerMinute = msPerSecond * 60;
+            const msPerHour = msPerMinute * 60;
+            const msPerDay = msPerHour * 24;
+
+            const days = Math.floor(distance / msPerDay);
+            const hours = Math.floor((distance % msPerDay) / msPerHour);
+            const minutes = Math.floor((distance % msPerHour) / msPerMinute);
+            const seconds = Math.floor((distance % msPerMinute) / msPerSecond);
+
+            // MANIPULASI DOM: Memperbarui teks angka pada kartu di layar
+            daysEl.textContent = formatTwoDigits(days);
+            hoursEl.textContent = formatTwoDigits(hours);
+            minutesEl.textContent = formatTwoDigits(minutes);
+            secondsEl.textContent = formatTwoDigits(seconds);
+        }
+
+        /**
+         * 4. FUNGSI MEMULAI / MENGULANG TIMER: startTimer(newTargetDate, customLabel)
+         * Mengatur target baru, menjalankan update pertama kali, dan memulai setInterval().
+         */
+        function startTimer(newTargetDate, customLabel = null) {
+            targetTimestamp = newTargetDate.getTime();
+
+            // Perbarui teks subjudul target di bagian atas halaman
+            if (customLabel) {
+                targetSubtitleEl.innerHTML = `${customLabel.split('—')[0]} — <span class="text-indigo-300 font-semibold">${customLabel.split('—')[1]}</span>`;
+            } else {
+                const formattedText = formatIndonesianDateTime(newTargetDate);
+                targetSubtitleEl.innerHTML = `Target Kustom — <span class="text-cyan-300 font-semibold">${formattedText}</span>`;
+            }
+
+            // Hentikan interval lama jika masih berjalan sebelum membuat yang baru
+            if (countdownIntervalId) {
+                clearInterval(countdownIntervalId);
+            }
+
+            // Jalankan segera tanpa menunggu 1 detik pertama
+            updateCountdown();
+
+            // Jalankan updateCountdown() secara berulang setiap 1000 milidetik (1 detik)
+            countdownIntervalId = setInterval(updateCountdown, 1000);
+        }
+
+        /**
+         * 5. EVENT LISTENER UNTUK FORM CUSTOM TIMER
+         * Menangani aksi saat pengguna menekan tombol "Mulai Hitung Mundur".
+         */
+        customTimerForm.addEventListener('submit', function (event) {
+            // Mencegah halaman me-refresh saat form dikirim
+            event.preventDefault();
+
+            const inputValue = customDateTimeInput.value;
+            if (!inputValue) {
+                showFeedback('Silakan pilih tanggal dan jam terlebih dahulu.', 'error');
+                return;
+            }
+
+            // Ubah string input dari <input type="datetime-local"> menjadi objek Date
+            const selectedDate = new Date(inputValue);
+
+            // Validasi apakah format tanggal valid
+            if (isNaN(selectedDate.getTime())) {
+                showFeedback('Format tanggal dan waktu tidak valid.', 'error');
+                return;
+            }
+
+            isDefaultTarget = false;
+            startTimer(selectedDate, null);
+
+            if (selectedDate.getTime() > Date.now()) {
+                showFeedback('Hitung mundur berhasil diperbarui ke jadwal baru!', 'info');
+            }
+        });
+
+        /**
+         * 6. EVENT LISTENER TOMBOL RESET KE PSAS II
+         * Mengembalikan target hitung mundur ke jadwal default 30 Desember 2026.
+         */
+        resetDefaultBtn.addEventListener('click', function () {
+            isDefaultTarget = true;
+            customDateTimeInput.value = '2026-12-30T00:00';
+            startTimer(new Date(DEFAULT_TARGET_STRING), DEFAULT_LABEL);
+            showFeedback('Target hitung mundur dikembalikan ke PSAS II (30 Desember 2026).', 'info');
+        });
+
+        /**
+         * 7. INISIALISASI SAAT HALAMAN SELESAI DIMUAT
+         */
+        window.addEventListener('DOMContentLoaded', function () {
+            // Isi nilai awal input datetime-local agar memudahkan pengujian
+            customDateTimeInput.value = '2026-12-30T00:00';
+            // Mulai hitung mundur utama menuju PSAS II — 30 Desember 2026
+            startTimer(new Date(DEFAULT_TARGET_STRING), DEFAULT_LABEL);
+        });
+    </script>
+</body>
+</html>
